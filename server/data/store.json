@@ -117,7 +117,7 @@
       "categoryId": "cat-groceries",
       "packSize": "1 kg",
       "price": 175,
-      "stock": 18,
+      "stock": 17,
       "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80",
       "isActive": true,
       "description": "Unpolished protein-rich pigeon peas with wholesome natural taste."
@@ -129,7 +129,7 @@
       "categoryId": "cat-groceries",
       "packSize": "1 kg",
       "price": 52,
-      "stock": 40,
+      "stock": 39,
       "image": "https://images.unsplash.com/photo-1622484216805-4f4942ec4cfb?auto=format&fit=crop&w=500&q=80",
       "isActive": true,
       "description": "Sulphur-free sparkling white crystal sugar."
@@ -448,6 +448,67 @@
     }
   ],
   "orders": [
+    {
+      "id": "ord-1007",
+      "orderNumber": 1007,
+      "orderDisplayNumber": "#1007",
+      "customerName": "kali",
+      "phone": "8122285974",
+      "note": "i will be reached in before 6pm",
+      "items": [
+        {
+          "productId": "prod-105",
+          "name": "Tata Sampann Unpolished Toor Dal",
+          "brand": "Tata Sampann",
+          "packSize": "1 kg",
+          "price": 175,
+          "quantity": 1,
+          "subtotal": 175,
+          "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80"
+        },
+        {
+          "productId": "prod-106",
+          "name": "Madhur Pure & Hygienic Sugar",
+          "brand": "Madhur",
+          "packSize": "1 kg",
+          "price": 52,
+          "quantity": 1,
+          "subtotal": 52,
+          "image": "https://images.unsplash.com/photo-1622484216805-4f4942ec4cfb?auto=format&fit=crop&w=500&q=80"
+        }
+      ],
+      "totalAmount": 227,
+      "status": "COLLECTED",
+      "statusHistory": [
+        {
+          "status": "ORDER RECEIVED",
+          "timestamp": "2026-10-05T18:34:24.413Z",
+          "note": "Order placed by customer"
+        },
+        {
+          "status": "ACCEPTED",
+          "timestamp": "2026-10-05T18:34:46.167Z",
+          "note": "Order accepted by store staff"
+        },
+        {
+          "status": "PREPARING",
+          "timestamp": "2026-10-05T18:34:49.628Z",
+          "note": "Shop staff packing items"
+        },
+        {
+          "status": "READY FOR COLLECTION",
+          "timestamp": "2026-10-05T18:34:52.814Z",
+          "note": "Order packed and on counter"
+        },
+        {
+          "status": "COLLECTED",
+          "timestamp": "2026-10-05T18:34:56.246Z",
+          "note": "Customer collected package at store counter"
+        }
+      ],
+      "createdAt": "2026-10-05T18:34:24.413Z",
+      "updatedAt": "2026-10-05T18:34:56.246Z"
+    },
     {
       "id": "ord-1006",
       "orderNumber": 1006,
@@ -778,7 +839,7 @@
       "cancelReason": "i wan't come to the shop"
     }
   ],
-  "nextOrderNumber": 1007,
+  "nextOrderNumber": 1008,
   "auth": {
     "username": "admin",
     "password": "raja123"

@@ -6,7 +6,7 @@ import { useLanguage } from '../context/LanguageContext';
 
 export function Navbar({ onOpenCart, onOpenTracker, currentView, setCurrentView }) {
   const { itemCount, totalAmount } = useCart();
-  const { storeInfo, isStaffLoggedIn, activeTrackingId } = useStore();
+  const { storeInfo, isStaffLoggedIn, activeTrackingId, trackOrder } = useStore();
   const { lang, toggleLanguage, t } = useLanguage();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isAppInstalled, setIsAppInstalled] = useState(false);
@@ -124,21 +124,35 @@ export function Navbar({ onOpenCart, onOpenTracker, currentView, setCurrentView 
             </button>
 
             {/* Order Tracker Button */}
-            <button
-              onClick={onOpenTracker}
-              className={`relative px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-all border ${
-                activeTrackingId
-                  ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-xs hover:bg-amber-100'
-                  : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-              }`}
-              title={t('trackOrder')}
-            >
-              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
-              <span className="hidden sm:inline">{t('trackOrder')}</span>
+            <div className="relative flex items-center">
+              <button
+                onClick={onOpenTracker}
+                className={`relative px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-all border ${
+                  activeTrackingId
+                    ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-xs hover:bg-amber-100 pr-6.5 sm:pr-7'
+                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                }`}
+                title={t('trackOrder')}
+              >
+                <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
+                <span className="hidden sm:inline">{t('trackOrder')}</span>
+                {activeTrackingId && (
+                  <span className="w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
+                )}
+              </button>
               {activeTrackingId && (
-                <span className="w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    trackOrder(null);
+                  }}
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-amber-200/90 hover:bg-rose-500 hover:text-white text-amber-900 flex items-center justify-center text-[10px] font-black transition-colors cursor-pointer"
+                  title="Turn off tracking indicator (✕) / கண்காணிப்பை நிறுத்து"
+                >
+                  ✕
+                </button>
               )}
-            </button>
+            </div>
 
             {/* Shopping Cart Button */}
             <button

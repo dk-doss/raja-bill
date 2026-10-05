@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle2, Clock, PackageCheck, Check, AlertTriangle, Phone, Store, MapPin, Search, ArrowRight, Share2, Sparkles, MessageCircle } from 'lucide-react';
+import { X, CheckCircle2, Clock, PackageCheck, Check, AlertTriangle, Phone, Store, MapPin, Search, ArrowRight, Share2, Sparkles, MessageCircle, BellOff } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useStore } from '../../context/StoreContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -14,6 +14,12 @@ export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
   const [lookupQuery, setLookupQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleStopTracking = () => {
+    trackOrder(null);
+    setOrder(null);
+    setError('');
+  };
 
   const ORDER_STATUS_STEPS = [
     { id: 'ORDER RECEIVED', label: t('ORDER RECEIVED'), desc: t('ORDER RECEIVED_desc') },
@@ -113,12 +119,25 @@ export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 flex items-center justify-center transition-colors cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {order && (
+              <button
+                onClick={handleStopTracking}
+                className="px-2.5 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                title={t('clearTrackingDesc')}
+              >
+                <BellOff className="w-3.5 h-3.5" />
+                <span>{t('stopTracking')}</span>
+              </button>
+            )}
+
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
@@ -369,10 +388,20 @@ export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-          <span className="text-[11px] text-slate-400 font-medium">
-            {lang === 'ta' ? 'ராஜா ஸ்டோரின் நேரடி அப்டேட்' : 'Live auto-updating status via RAJA STORE network'}
-          </span>
+        <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2">
+          {order ? (
+            <button
+              onClick={handleStopTracking}
+              className="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <BellOff className="w-3.5 h-3.5" />
+              <span>{t('stopTracking')}</span>
+            </button>
+          ) : (
+            <span className="text-[11px] text-slate-400 font-medium">
+              {lang === 'ta' ? 'ராஜா ஸ்டோரின் நேரடி அப்டேட்' : 'Live auto-updating status via RAJA STORE network'}
+            </span>
+          )}
           <button
             onClick={onClose}
             className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition-colors cursor-pointer"
