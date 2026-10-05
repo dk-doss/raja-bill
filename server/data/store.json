@@ -69,7 +69,7 @@
       "categoryId": "cat-groceries",
       "packSize": "5 kg",
       "price": 320,
-      "stock": 22,
+      "stock": 20,
       "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=500&q=80",
       "isActive": true,
       "description": "100% pure whole wheat flour processed from the finest grains for soft rotis."
@@ -449,6 +449,57 @@
   ],
   "orders": [
     {
+      "id": "ord-1006",
+      "orderNumber": 1006,
+      "orderDisplayNumber": "#1006",
+      "customerName": "Anitha Sharma",
+      "phone": "9840998877",
+      "note": "Please pack in eco bag, will collect by 5 PM",
+      "items": [
+        {
+          "productId": "prod-101",
+          "name": "Aashirvaad Superior MP Atta",
+          "brand": "Aashirvaad",
+          "packSize": "5 kg",
+          "price": 320,
+          "quantity": 2,
+          "subtotal": 640,
+          "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=500&q=80"
+        }
+      ],
+      "totalAmount": 640,
+      "status": "COLLECTED",
+      "statusHistory": [
+        {
+          "status": "ORDER RECEIVED",
+          "timestamp": "2026-10-05T18:14:02.077Z",
+          "note": "Order placed by customer"
+        },
+        {
+          "status": "ACCEPTED",
+          "timestamp": "2026-10-05T18:14:02.086Z",
+          "note": "Shop accepted order"
+        },
+        {
+          "status": "PREPARING",
+          "timestamp": "2026-10-05T18:14:02.091Z",
+          "note": "Packing products now"
+        },
+        {
+          "status": "READY FOR COLLECTION",
+          "timestamp": "2026-10-05T18:14:02.095Z",
+          "note": "Order waiting on pickup counter"
+        },
+        {
+          "status": "COLLECTED",
+          "timestamp": "2026-10-05T18:14:02.100Z",
+          "note": "Customer collected package and paid"
+        }
+      ],
+      "createdAt": "2026-10-05T18:14:02.077Z",
+      "updatedAt": "2026-10-05T18:14:02.100Z"
+    },
+    {
       "id": "ord-1005",
       "orderNumber": 1005,
       "orderDisplayNumber": "#1005",
@@ -727,7 +778,7 @@
       "cancelReason": "i wan't come to the shop"
     }
   ],
-  "nextOrderNumber": 1006,
+  "nextOrderNumber": 1007,
   "auth": {
     "username": "admin",
     "password": "raja123"

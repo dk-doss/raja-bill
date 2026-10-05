@@ -1,5 +1,5 @@
-import React from 'react';
-import { ShoppingBag, Search, Store, Clock, Phone, CheckCircle2, ShieldCheck, MapPin, Globe } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ShoppingBag, Search, Store, Clock, Phone, CheckCircle2, ShieldCheck, MapPin, Globe, Smartphone, Download } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useStore } from '../context/StoreContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -8,6 +8,51 @@ export function Navbar({ onOpenCart, onOpenTracker, currentView, setCurrentView 
   const { itemCount, totalAmount } = useCart();
   const { storeInfo, isStaffLoggedIn, activeTrackingId } = useStore();
   const { lang, toggleLanguage, t } = useLanguage();
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isAppInstalled, setIsAppInstalled] = useState(false);
+
+  useEffect(() => {
+    // Listen for beforeinstallprompt event
+    const handleBeforeInstall = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    const handleAppInstalled = () => {
+      setIsAppInstalled(true);
+      setDeferredPrompt(null);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsAppInstalled(true);
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const choiceResult = await deferredPrompt.userChoice;
+      if (choiceResult.outcome === 'accepted') {
+        setIsAppInstalled(true);
+      }
+      setDeferredPrompt(null);
+    } else {
+      // Fallback instructions for iOS or desktop
+      alert(
+        lang === 'ta'
+          ? '📱 மொபைல் செயலியை நிறுவ:\n- Android Chrome: திரையின் மேல் உள்ள மூன்று புள்ளிகளை (⋮) தொட்டு "Install app" அல்லது "Add to Home screen" அழுத்தவும்.\n- iPhone Safari: கீழே உள்ள Share (⬆️) ஐகானை தொட்டு "Add to Home Screen" அழுத்தவும்.'
+          : '📱 To install the RAJA STORE App:\n- On Android Chrome: Tap Menu (⋮) and select "Install app" or "Add to Home screen".\n- On iPhone Safari: Tap Share (⬆️) and select "Add to Home Screen".'
+      );
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
@@ -47,8 +92,25 @@ export function Navbar({ onOpenCart, onOpenTracker, currentView, setCurrentView 
           </div>
 
           {/* Right Navigation Actions */}
-          <div className="flex items-center gap-1.5 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-2.5">
             
+            {/* Install App Button */}
+            {!isAppInstalled && (
+              <button
+                onClick={handleInstallClick}
+                className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-sm cursor-pointer"
+                title="Install RAJA STORE App on your phone or desktop"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">
+                  {lang === 'ta' ? 'செயலியை நிறுவுக' : 'Install App'}
+                </span>
+                <span className="md:hidden">
+                  {lang === 'ta' ? 'App' : 'App'}
+                </span>
+              </button>
+            )}
+
             {/* Language Switcher Button (English / தமிழ்) */}
             <button
               onClick={toggleLanguage}
@@ -64,7 +126,7 @@ export function Navbar({ onOpenCart, onOpenTracker, currentView, setCurrentView 
             {/* Order Tracker Button */}
             <button
               onClick={onOpenTracker}
-              className={`relative px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-all border ${
+              className={`relative px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-all border ${
                 activeTrackingId
                   ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-xs hover:bg-amber-100'
                   : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
