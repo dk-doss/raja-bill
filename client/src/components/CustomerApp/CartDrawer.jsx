@@ -3,12 +3,14 @@ import { X, Trash2, Plus, Minus, ArrowRight, ShoppingBag, AlertCircle, Phone, Us
 import confetti from 'canvas-confetti';
 import { useCart } from '../../context/CartContext';
 import { useStore } from '../../context/StoreContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { placeOrder } from '../../api';
 import { sound } from '../../utils/audio';
 
 export function CartDrawer({ isOpen, onClose, onOrderPlaced }) {
   const { items, updateQuantity, removeFromCart, clearCart, itemCount, totalAmount, showNotification } = useCart();
   const { storeInfo, trackOrder } = useStore();
+  const { lang, t } = useLanguage();
 
   const [step, setStep] = useState('cart'); // 'cart' | 'details'
   const [customerName, setCustomerName] = useState('');
@@ -22,11 +24,11 @@ export function CartDrawer({ isOpen, onClose, onOrderPlaced }) {
   const validateDetails = () => {
     const errs = {};
     if (!customerName.trim()) {
-      errs.name = 'Please enter your name';
+      errs.name = lang === 'ta' ? 'தயவுசெய்து உங்கள் பெயரை உள்ளிடவும்' : 'Please enter your name';
     }
     const cleanPhone = phoneNumber.trim().replace(/\D/g, '');
     if (!cleanPhone || cleanPhone.length < 10) {
-      errs.phone = 'Please enter a valid 10-digit mobile number';
+      errs.phone = lang === 'ta' ? 'சரியான 10 இலக்க செல்போன் எண்ணை உள்ளிடவும்' : 'Please enter a valid 10-digit mobile number';
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -36,7 +38,7 @@ export function CartDrawer({ isOpen, onClose, onOrderPlaced }) {
     e.preventDefault();
     if (!validateDetails()) return;
     if (items.length === 0) {
-      showNotification('Your cart is empty', 'error');
+      showNotification(t('emptyCartTitle'), 'error');
       return;
     }
 
@@ -99,17 +101,17 @@ export function CartDrawer({ isOpen, onClose, onOrderPlaced }) {
               </div>
               <div>
                 <h3 className="font-extrabold text-slate-900 text-base">
-                  {step === 'cart' ? 'YOUR CART' : 'CUSTOMER DETAILS'}
+                  {step === 'cart' ? t('yourCart') : t('customerDetails')}
                 </h3>
                 <p className="text-xs text-slate-500 font-medium">
-                  {step === 'cart' ? `${itemCount} items selected` : 'Self-pickup at RAJA STORE'}
+                  {step === 'cart' ? t('itemsSelected', { count: itemCount }) : t('selfPickupBadge')}
                 </p>
               </div>
             </div>
 
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 flex items-center justify-center transition-colors"
+              className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 flex items-center justify-center transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -124,16 +126,16 @@ export function CartDrawer({ isOpen, onClose, onOrderPlaced }) {
                   <ShoppingBag className="w-8 h-8" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-800 text-base">Your cart is empty</h4>
+                  <h4 className="font-bold text-slate-800 text-base">{t('emptyCartTitle')}</h4>
                   <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
-                    Explore our products and add grocery items to place your pickup order.
+                    {t('emptyCartDesc')}
                   </p>
                 </div>
                 <button
                   onClick={onClose}
-                  className="px-5 py-2.5 bg-orange-600 text-white rounded-xl text-xs font-bold hover:bg-orange-700 transition-colors shadow-sm"
+                  className="px-5 py-2.5 bg-orange-600 text-white rounded-xl text-xs font-bold hover:bg-orange-700 transition-colors shadow-sm cursor-pointer"
                 >
-                  Start Shopping
+                  {t('startShopping')}
                 </button>
               </div>
             ) : step === 'cart' ? (
@@ -145,7 +147,7 @@ export function CartDrawer({ isOpen, onClose, onOrderPlaced }) {
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-amber-800 text-xs flex items-start gap-2.5">
                   <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                   <div className="leading-relaxed">
-                    <span className="font-bold">Store Collection Only:</span> There is NO home delivery. After ordering, you will pick up your bag at <strong>{storeInfo.name}</strong>.
+                    {t('noDeliveryReminder')}
                   </div>
                 </div>
 
@@ -175,7 +177,7 @@ export function CartDrawer({ isOpen, onClose, onOrderPlaced }) {
                       <div className="flex flex-col items-end gap-1 shrink-0">
                         <button
                           onClick={() => removeFromCart(item.product.id)}
-                          className="text-slate-400 hover:text-rose-600 p-1 transition-colors"
+                          className="text-slate-400 hover:text-rose-600 p-1 transition-colors cursor-pointer"
                           title="Remove item"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -218,7 +220,7 @@ export function CartDrawer({ isOpen, onClose, onOrderPlaced }) {
                 <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-xs space-y-1">
                   <div className="font-bold text-slate-800 flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5 text-orange-600" />
-                    <span>Pickup Location: {storeInfo.name}</span>
+                    <span>{t('collectionPoint')}</span>
                   </div>
                   <p className="text-slate-600 pl-5">{storeInfo.address}</p>
                 </div>
@@ -227,12 +229,12 @@ export function CartDrawer({ isOpen, onClose, onOrderPlaced }) {
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
                     <User className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Customer Name *</span>
+                    <span>{t('customerName')}</span>
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="Enter your full name"
+                    placeholder={t('namePlaceholder')}
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-medium focus:outline-hidden transition-all ${
@@ -246,14 +248,14 @@ export function CartDrawer({ isOpen, onClose, onOrderPlaced }) {
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
                     <Phone className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Phone Number *</span>
+                    <span>{t('phoneNumber')}</span>
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-2.5 text-xs font-bold text-slate-400">+91</span>
                     <input
                       type="tel"
                       required
-                      placeholder="10-digit mobile number"
+                      placeholder={t('phonePlaceholder')}
                       maxLength={10}
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
@@ -263,18 +265,18 @@ export function CartDrawer({ isOpen, onClose, onOrderPlaced }) {
                     />
                   </div>
                   {errors.phone && <p className="text-rose-600 text-[11px] font-semibold mt-1">{errors.phone}</p>}
-                  <p className="text-[11px] text-slate-400 mt-1">We will notify you on this number when your order is ready.</p>
+                  <p className="text-[11px] text-slate-400 mt-1">{t('phoneHint')}</p>
                 </div>
 
                 {/* Optional Order Note */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
                     <FileText className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Order Note (Optional)</span>
+                    <span>{t('orderNote')}</span>
                   </label>
                   <textarea
                     rows={2}
-                    placeholder='e.g., "Please keep ready by 6 PM" or "Pack in 2 bags"'
+                    placeholder={t('notePlaceholder')}
                     value={orderNote}
                     onChange={(e) => setOrderNote(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-orange-500 focus:ring-3 focus:ring-orange-100 text-sm font-medium focus:outline-hidden transition-all"
@@ -293,15 +295,15 @@ export function CartDrawer({ isOpen, onClose, onOrderPlaced }) {
               {/* Price Calculation */}
               <div className="space-y-1.5 text-xs text-slate-600">
                 <div className="flex justify-between font-semibold">
-                  <span>Items Total ({itemCount} items)</span>
+                  <span>{t('itemsTotal')} ({itemCount})</span>
                   <span className="text-slate-800">₹{totalAmount}</span>
                 </div>
                 <div className="flex justify-between font-semibold text-emerald-700">
-                  <span>Pickup / Packaging Fee</span>
-                  <span>FREE</span>
+                  <span>{t('pickupFee')}</span>
+                  <span>{t('free')}</span>
                 </div>
                 <div className="pt-2 border-t border-slate-200 flex justify-between text-base font-black text-slate-900">
-                  <span>Grand Total</span>
+                  <span>{t('grandTotal')}</span>
                   <span className="text-orange-600 text-lg">₹{totalAmount}</span>
                 </div>
               </div>
@@ -312,7 +314,7 @@ export function CartDrawer({ isOpen, onClose, onOrderPlaced }) {
                   onClick={() => setStep('details')}
                   className="w-full bg-orange-600 hover:bg-orange-700 active:scale-98 text-white py-3 px-4 rounded-xl font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-orange-600/30 transition-all cursor-pointer"
                 >
-                  <span>CONTINUE</span>
+                  <span>{t('continue')}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               ) : (
@@ -322,7 +324,7 @@ export function CartDrawer({ isOpen, onClose, onOrderPlaced }) {
                     onClick={() => setStep('cart')}
                     className="px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
                   >
-                    Back
+                    {t('back')}
                   </button>
                   <button
                     type="submit"
@@ -333,10 +335,10 @@ export function CartDrawer({ isOpen, onClose, onOrderPlaced }) {
                     {isSubmitting ? (
                       <span className="flex items-center gap-2">
                         <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                        <span>Placing Order...</span>
+                        <span>{t('placingOrder')}</span>
                       </span>
                     ) : (
-                      <span>PLACE ORDER (₹{totalAmount})</span>
+                      <span>{t('placeOrder')} (₹{totalAmount})</span>
                     )}
                   </button>
                 </div>

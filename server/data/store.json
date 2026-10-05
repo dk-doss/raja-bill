@@ -69,7 +69,7 @@
       "categoryId": "cat-groceries",
       "packSize": "5 kg",
       "price": 320,
-      "stock": 23,
+      "stock": 22,
       "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=500&q=80",
       "isActive": true,
       "description": "100% pure whole wheat flour processed from the finest grains for soft rotis."
@@ -81,7 +81,7 @@
       "categoryId": "cat-groceries",
       "packSize": "5 kg",
       "price": 480,
-      "stock": 20,
+      "stock": 19,
       "image": "https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?auto=format&fit=crop&w=500&q=80",
       "isActive": true,
       "description": "Aromatic long grain basmati rice, aged to perfection for everyday meals."
@@ -201,7 +201,7 @@
       "categoryId": "cat-snacks",
       "packSize": "50 g",
       "price": 20,
-      "stock": 50,
+      "stock": 53,
       "image": "https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=500&q=80",
       "isActive": true,
       "description": "Crispy ridged potato chips seasoned with aromatic Indian spices."
@@ -273,7 +273,7 @@
       "categoryId": "cat-beverages",
       "packSize": "750 ml Pet Bottle",
       "price": 45,
-      "stock": 30,
+      "stock": 32,
       "image": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=80",
       "isActive": true,
       "description": "Taste the Thunder! Intense spicy cola beverage."
@@ -448,6 +448,67 @@
     }
   ],
   "orders": [
+    {
+      "id": "ord-1005",
+      "orderNumber": 1005,
+      "orderDisplayNumber": "#1005",
+      "customerName": "D.kalidoss",
+      "phone": "8122285974",
+      "note": "i will reach in before 6pm",
+      "items": [
+        {
+          "productId": "prod-101",
+          "name": "Aashirvaad Superior MP Atta",
+          "brand": "Aashirvaad",
+          "packSize": "5 kg",
+          "price": 320,
+          "quantity": 1,
+          "subtotal": 320,
+          "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=500&q=80"
+        },
+        {
+          "productId": "prod-102",
+          "name": "India Gate Basmati Rice Feast Rozzana",
+          "brand": "India Gate",
+          "packSize": "5 kg",
+          "price": 480,
+          "quantity": 1,
+          "subtotal": 480,
+          "image": "https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?auto=format&fit=crop&w=500&q=80"
+        }
+      ],
+      "totalAmount": 800,
+      "status": "COLLECTED",
+      "statusHistory": [
+        {
+          "status": "ORDER RECEIVED",
+          "timestamp": "2026-10-05T18:00:51.043Z",
+          "note": "Order placed by customer"
+        },
+        {
+          "status": "ACCEPTED",
+          "timestamp": "2026-10-05T18:03:44.710Z",
+          "note": "Order accepted by store staff"
+        },
+        {
+          "status": "PREPARING",
+          "timestamp": "2026-10-05T18:03:48.395Z",
+          "note": "Shop staff packing items"
+        },
+        {
+          "status": "READY FOR COLLECTION",
+          "timestamp": "2026-10-05T18:03:51.294Z",
+          "note": "Order packed and on counter"
+        },
+        {
+          "status": "COLLECTED",
+          "timestamp": "2026-10-05T18:03:52.856Z",
+          "note": "Customer collected package at store counter"
+        }
+      ],
+      "createdAt": "2026-10-05T18:00:51.043Z",
+      "updatedAt": "2026-10-05T18:03:52.856Z"
+    },
     {
       "id": "ord-1004",
       "orderNumber": 1004,
@@ -648,19 +709,25 @@
         }
       ],
       "totalAmount": 150,
-      "status": "ORDER RECEIVED",
+      "status": "CANCELLED",
       "statusHistory": [
         {
           "status": "ORDER RECEIVED",
           "timestamp": "2026-10-05T17:31:40.868Z",
           "note": "New order received"
+        },
+        {
+          "status": "CANCELLED",
+          "timestamp": "2026-10-05T18:05:18.687Z",
+          "note": "Cancelled by store staff"
         }
       ],
       "createdAt": "2026-10-05T17:31:40.868Z",
-      "updatedAt": "2026-10-05T17:31:40.868Z"
+      "updatedAt": "2026-10-05T18:05:18.687Z",
+      "cancelReason": "i wan't come to the shop"
     }
   ],
-  "nextOrderNumber": 1005,
+  "nextOrderNumber": 1006,
   "auth": {
     "username": "admin",
     "password": "raja123"

@@ -2,24 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { X, CheckCircle2, Clock, PackageCheck, Check, AlertTriangle, Phone, Store, MapPin, Search, ArrowRight, Share2, Sparkles, MessageCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useStore } from '../../context/StoreContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { fetchOrderByIdentifier, fetchOrdersByPhone, subscribeToEvents } from '../../api';
 import { sound } from '../../utils/audio';
 
-const ORDER_STATUS_STEPS = [
-  { id: 'ORDER RECEIVED', label: 'Order Received', desc: 'The order has been sent to RAJA STORE.' },
-  { id: 'ACCEPTED', label: 'Accepted', desc: 'The shop has accepted your order.' },
-  { id: 'PREPARING', label: 'Preparing', desc: 'The shop is preparing and packing your products.' },
-  { id: 'READY FOR COLLECTION', label: 'Ready for Collection', desc: '🎉 Your order is ready! Please come to RAJA STORE to collect.' },
-  { id: 'COLLECTED', label: 'Collected', desc: 'The order has been collected. Thank you for shopping with us!' }
-];
-
 export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
   const { storeInfo, activeTrackingId, trackOrder } = useStore();
+  const { lang, t } = useLanguage();
 
   const [order, setOrder] = useState(initialOrder || null);
   const [lookupQuery, setLookupQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const ORDER_STATUS_STEPS = [
+    { id: 'ORDER RECEIVED', label: t('ORDER RECEIVED'), desc: t('ORDER RECEIVED_desc') },
+    { id: 'ACCEPTED', label: t('ACCEPTED'), desc: t('ACCEPTED_desc') },
+    { id: 'PREPARING', label: t('PREPARING'), desc: t('PREPARING_desc') },
+    { id: 'READY FOR COLLECTION', label: t('READY FOR COLLECTION'), desc: t('READY FOR COLLECTION_desc') },
+    { id: 'COLLECTED', label: t('COLLECTED'), desc: t('COLLECTED_desc') }
+  ];
 
   // If initialOrder passed, set it
   useEffect(() => {
@@ -70,10 +72,10 @@ export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
           setOrder(phoneOrders[0]);
           trackOrder(phoneOrders[0].orderNumber);
         } else {
-          setError('No order found with this Order Number or Phone Number.');
+          setError(lang === 'ta' ? 'இந்த எண் கொண்டு ஆர்டர் எதுவும் கிடைக்கவில்லை.' : 'No order found with this Order Number or Phone Number.');
         }
       } catch (e2) {
-        setError('No order found with this Order Number or Phone Number.');
+        setError(lang === 'ta' ? 'இந்த எண் கொண்டு ஆர்டர் எதுவும் கிடைக்கவில்லை.' : 'No order found with this Order Number or Phone Number.');
       }
     } finally {
       setIsLoading(false);
@@ -106,14 +108,14 @@ export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
               <Clock className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-extrabold text-slate-900 text-base">Order Status Tracker</h3>
-              <p className="text-xs text-slate-500 font-medium">Live updates from {storeInfo.name}</p>
+              <h3 className="font-extrabold text-slate-900 text-base">{t('orderTrackerTitle')}</h3>
+              <p className="text-xs text-slate-500 font-medium">{t('liveUpdates')}</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -129,7 +131,7 @@ export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                 <input
                   type="text"
-                  placeholder="Enter Order # (e.g. 1001) or 10-digit Phone"
+                  placeholder={t('searchOrderPlaceholder')}
                   value={lookupQuery}
                   onChange={(e) => setLookupQuery(e.target.value)}
                   className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-100 font-medium focus:outline-hidden"
@@ -140,7 +142,7 @@ export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
                 disabled={isLoading}
                 className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs sm:text-sm font-bold transition-colors cursor-pointer shrink-0 disabled:opacity-50"
               >
-                Track
+                {t('trackBtn')}
               </button>
             </div>
             {error && <p className="text-rose-600 text-xs font-semibold mt-1.5">{error}</p>}
@@ -162,40 +164,40 @@ export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
                 {order.status === 'READY FOR COLLECTION' && (
                   <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-xs px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider mb-2">
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Ready for Pickup Now!</span>
+                    <span>{t('orderReadyBanner')}</span>
                   </div>
                 )}
 
                 <h4 className="text-xs font-bold uppercase tracking-wider opacity-80">
-                  {order.status === 'READY FOR COLLECTION' ? 'Your Order is Ready' : 'Order Number'}
+                  {order.status === 'READY FOR COLLECTION' ? t('orderReadyBanner') : t('orderNumberLabel')}
                 </h4>
                 <div className="text-3xl sm:text-4xl font-black tracking-tight my-1">
                   {order.orderDisplayNumber || `#${order.orderNumber}`}
                 </div>
                 <p className={`text-xs font-medium max-w-sm mx-auto ${order.status === 'READY FOR COLLECTION' ? 'text-white/90' : 'text-slate-600'}`}>
                   {order.status === 'READY FOR COLLECTION'
-                    ? `Please come to ${storeInfo.name} counter to collect your order.`
-                    : `Thank you, ${order.customerName}! Your order has been placed successfully.`}
+                    ? t('orderReadySub')
+                    : t('orderPlacedSub', { name: order.customerName })}
                 </p>
 
                 <div className="mt-3 pt-3 border-t border-black/10 flex items-center justify-center gap-4 text-xs font-bold">
-                  <span>Customer: {order.customerName}</span>
+                  <span>{t('customerLabel')}: {order.customerName}</span>
                   <span>•</span>
-                  <span>Amount: ₹{order.totalAmount}</span>
+                  <span>{t('amountLabel')}: ₹{order.totalAmount}</span>
                 </div>
               </div>
 
               {/* Status Stepper */}
               <div>
                 <h5 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">
-                  Live Order Status
+                  {t('liveOrderStatus')}
                 </h5>
 
                 {isCancelled ? (
                   <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-start gap-3">
                     <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
                     <div>
-                      <h6 className="font-bold text-rose-900 text-sm">Order Cancelled</h6>
+                      <h6 className="font-bold text-rose-900 text-sm">{t('CANCELLED')}</h6>
                       <p className="text-xs text-rose-700 mt-1">
                         {order.cancelReason || 'This order was cancelled by store staff.'}
                       </p>
@@ -253,7 +255,7 @@ export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
                               </h6>
                               {isCurrent && (
                                 <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 tracking-wider">
-                                  Current Status
+                                  {lang === 'ta' ? 'தற்போதைய நிலை' : 'Current Status'}
                                 </span>
                               )}
                             </div>
@@ -280,10 +282,10 @@ export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
               <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3">
                 <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                   <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                    Ordered Items ({order.items?.length || 0})
+                    {t('orderedItems')} ({order.items?.length || 0})
                   </span>
                   <span className="text-xs font-extrabold text-slate-900">
-                    Total: ₹{order.totalAmount}
+                    {t('grandTotal')}: ₹{order.totalAmount}
                   </span>
                 </div>
 
@@ -305,7 +307,7 @@ export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
 
                 {order.note && (
                   <div className="pt-2 border-t border-slate-200 text-xs">
-                    <span className="font-bold text-slate-700">Your Note: </span>
+                    <span className="font-bold text-slate-700">{t('yourNote')}: </span>
                     <span className="text-slate-600 italic">"{order.note}"</span>
                   </div>
                 )}
@@ -317,13 +319,13 @@ export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
                   <MapPin className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                   <div>
                     <h6 className="font-bold text-amber-900 text-xs sm:text-sm">
-                      Collection Point: {storeInfo.name}
+                      {t('collectionPoint')}
                     </h6>
                     <p className="text-xs text-amber-800 mt-0.5">
                       {storeInfo.address}
                     </p>
                     <p className="text-[11px] text-amber-700 mt-1 font-semibold">
-                      Timings: {storeInfo.pickupTimings}
+                      {t('storeTimings')}
                     </p>
                   </div>
                 </div>
@@ -334,7 +336,7 @@ export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-amber-300 text-amber-900 text-xs font-bold hover:bg-amber-100 transition-colors"
                   >
                     <Phone className="w-3.5 h-3.5" />
-                    <span>Call Store ({storeInfo.phone})</span>
+                    <span>{t('callStore')} ({storeInfo.phone})</span>
                   </a>
 
                   {storeInfo.whatsapp && (
@@ -345,7 +347,7 @@ export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors"
                     >
                       <MessageCircle className="w-3.5 h-3.5" />
-                      <span>WhatsApp Store</span>
+                      <span>{t('whatsappStore')}</span>
                     </a>
                   )}
                 </div>
@@ -357,9 +359,9 @@ export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
               <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
                 <Search className="w-6 h-6" />
               </div>
-              <h4 className="font-bold text-slate-800 text-sm">No Active Order Selected</h4>
+              <h4 className="font-bold text-slate-800 text-sm">{t('noActiveOrderTitle')}</h4>
               <p className="text-xs text-slate-500 max-w-xs mx-auto">
-                Enter your Order Number above (e.g. 1001) or 10-digit mobile number to track the live progress.
+                {t('noActiveOrderDesc')}
               </p>
             </div>
           )}
@@ -369,13 +371,13 @@ export function OrderTrackerModal({ isOpen, onClose, initialOrder }) {
         {/* Footer */}
         <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
           <span className="text-[11px] text-slate-400 font-medium">
-            Live auto-updating status via RAJA STORE network
+            {lang === 'ta' ? 'ராஜா ஸ்டோரின் நேரடி அப்டேட்' : 'Live auto-updating status via RAJA STORE network'}
           </span>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition-colors cursor-pointer"
           >
-            Close
+            {t('close')}
           </button>
         </div>
 

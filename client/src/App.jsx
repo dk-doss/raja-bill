@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CartProvider } from './context/CartContext';
 import { StoreProvider, useStore } from './context/StoreContext';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { Navbar } from './components/Navbar';
 import { CustomerHome } from './components/CustomerApp/CustomerHome';
 import { CartDrawer } from './components/CustomerApp/CartDrawer';
@@ -10,6 +11,7 @@ import { StoreDashboard } from './components/StoreApp/StoreDashboard';
 
 function MainApp() {
   const { isStaffLoggedIn } = useStore();
+  const { lang, t } = useLanguage();
   const [currentView, setCurrentView] = useState('customer'); // 'customer' | 'store'
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isTrackerOpen, setIsTrackerOpen] = useState(false);
@@ -35,12 +37,14 @@ function MainApp() {
         ) : (
           <div className="min-h-screen bg-slate-100 flex flex-col justify-between">
             <header className="p-4 bg-white border-b border-slate-200 flex items-center justify-between">
-              <span className="font-extrabold text-slate-900 text-lg">RAJA STORE Staff Portal</span>
+              <span className="font-extrabold text-slate-900 text-lg">
+                {lang === 'ta' ? 'ராஜா ஸ்டோர் கடை நிர்வாகம்' : 'RAJA STORE Staff Portal'}
+              </span>
               <button
                 onClick={() => setCurrentView('customer')}
-                className="text-xs font-bold text-orange-600 hover:text-orange-700"
+                className="text-xs font-bold text-orange-600 hover:text-orange-700 cursor-pointer"
               >
-                ← Back to Customer Storefront
+                ← {lang === 'ta' ? 'வாடிக்கையாளர் தளத்திற்கு திரும்பு' : 'Back to Customer Storefront'}
               </button>
             </header>
             <StoreLogin
@@ -48,7 +52,7 @@ function MainApp() {
               onCancel={() => setCurrentView('customer')}
             />
             <footer className="p-4 text-center text-xs text-slate-400">
-              RAJA STORE Store Management System • Authorized Personnel Only
+              {lang === 'ta' ? 'ராஜா ஸ்டோர் மேலாண்மை அமைப்பு • ஊழியர்களுக்கு மட்டுமே' : 'RAJA STORE Store Management System • Authorized Personnel Only'}
             </footer>
           </div>
         )
@@ -72,13 +76,13 @@ function MainApp() {
           {/* Footer */}
           <footer className="bg-white border-t border-slate-200 py-8 px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500 space-y-2">
             <p className="font-bold text-slate-700 text-sm">
-              RAJA STORE — Neighborhood Retail Ordering System
+              {lang === 'ta' ? 'ராஜா ஸ்டோர் — சில்லறை மளிகைக் கடை டிஜிட்டல் ஆர்டரிங் தளம்' : 'RAJA STORE — Neighborhood Retail Ordering System'}
             </p>
             <p>
-              Order Groceries Online • Collect at RAJA STORE Counter • Free Self-Pickup
+              {lang === 'ta' ? 'வீட்டிலிருந்து ஆர்டர் செய்யுங்கள் • ராஜா ஸ்டோரில் வந்து பெற்றுக்கொள்ளுங்கள் • இலவச சேகரிப்பு' : 'Order Groceries Online • Collect at RAJA STORE Counter • Free Self-Pickup'}
             </p>
             <p className="text-[11px] text-slate-400 pt-2">
-              © {new Date().getFullYear()} RAJA STORE. All rights reserved.
+              © {new Date().getFullYear()} RAJA STORE (ராஜா ஸ்டோர்). All rights reserved.
             </p>
           </footer>
 
@@ -104,10 +108,12 @@ function MainApp() {
 
 export default function App() {
   return (
-    <StoreProvider>
-      <CartProvider>
-        <MainApp />
-      </CartProvider>
-    </StoreProvider>
+    <LanguageProvider>
+      <StoreProvider>
+        <CartProvider>
+          <MainApp />
+        </CartProvider>
+      </StoreProvider>
+    </LanguageProvider>
   );
 }

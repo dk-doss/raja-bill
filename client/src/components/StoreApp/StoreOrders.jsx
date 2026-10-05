@@ -5,19 +5,11 @@ import {
 } from 'lucide-react';
 import { fetchOrders, updateOrderStatus, subscribeToEvents } from '../../api';
 import { StoreReceiptModal } from './StoreReceiptModal';
+import { useLanguage } from '../../context/LanguageContext';
 import { sound } from '../../utils/audio';
 
-const STATUS_TABS = [
-  { id: 'ALL', label: 'All Orders' },
-  { id: 'ORDER RECEIVED', label: 'New Received', color: 'rose' },
-  { id: 'ACCEPTED', label: 'Accepted', color: 'amber' },
-  { id: 'PREPARING', label: 'Preparing', color: 'blue' },
-  { id: 'READY FOR COLLECTION', label: 'Ready for Pickup', color: 'emerald' },
-  { id: 'COLLECTED', label: 'Collected', color: 'slate' },
-  { id: 'CANCELLED', label: 'Cancelled', color: 'gray' }
-];
-
 export function StoreOrders() {
+  const { lang, t } = useLanguage();
   const [orders, setOrders] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,6 +18,16 @@ export function StoreOrders() {
   const [cancellingOrderId, setCancellingOrderId] = useState(null);
   const [cancelReason, setCancelReason] = useState('');
   const [updatingId, setUpdatingId] = useState(null);
+
+  const STATUS_TABS = [
+    { id: 'ALL', label: lang === 'ta' ? 'அனைத்து ஆர்டர்கள்' : 'All Orders' },
+    { id: 'ORDER RECEIVED', label: lang === 'ta' ? 'புதியவை (New)' : 'New Received', color: 'rose' },
+    { id: 'ACCEPTED', label: lang === 'ta' ? 'ஏற்கப்பட்டவை' : 'Accepted', color: 'amber' },
+    { id: 'PREPARING', label: lang === 'ta' ? 'தயாராகிறது' : 'Preparing', color: 'blue' },
+    { id: 'READY FOR COLLECTION', label: lang === 'ta' ? 'பெற தயார்' : 'Ready for Pickup', color: 'emerald' },
+    { id: 'COLLECTED', label: lang === 'ta' ? 'முடிந்தவை' : 'Collected', color: 'slate' },
+    { id: 'CANCELLED', label: lang === 'ta' ? 'ரத்து' : 'Cancelled', color: 'gray' }
+  ];
 
   useEffect(() => {
     loadOrders();
@@ -127,7 +129,7 @@ export function StoreOrders() {
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
             <input
               type="text"
-              placeholder="Search by Order #, Customer Name, or Phone..."
+              placeholder={lang === 'ta' ? 'ஆர்டர் எண், வாடிக்கையாளர் பெயர் அல்லது போன் எண் கொண்டு தேடுக...' : 'Search by Order #, Customer Name, or Phone...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium focus:outline-hidden focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
@@ -136,7 +138,7 @@ export function StoreOrders() {
 
           <button
             onClick={loadOrders}
-            className="p-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+            className="p-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
             title="Refresh orders"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
@@ -151,11 +153,13 @@ export function StoreOrders() {
           <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
             <Package className="w-7 h-7" />
           </div>
-          <h4 className="font-bold text-slate-800 text-base">No orders found</h4>
+          <h4 className="font-bold text-slate-800 text-base">
+            {lang === 'ta' ? 'ஆர்டர்கள் எதுவும் இல்லை' : 'No orders found'}
+          </h4>
           <p className="text-xs text-slate-500 mt-1">
             {selectedStatus === 'ALL'
-              ? 'No customer orders have been placed yet.'
-              : `No orders currently in "${selectedStatus}" status.`}
+              ? (lang === 'ta' ? 'வாடிக்கையாளர்கள் இன்னும் ஆர்டர் செய்யவில்லை.' : 'No customer orders have been placed yet.')
+              : `${lang === 'ta' ? 'இந்த நிலையில் ஆர்டர்கள் இல்லை' : 'No orders currently in this status.'}`}
           </p>
         </div>
       ) : (
@@ -220,16 +224,16 @@ export function StoreOrders() {
                           : 'bg-rose-50 text-rose-600'
                       }`}
                     >
-                      {order.status}
+                      {t(order.status) || order.status}
                     </span>
 
                     <button
                       onClick={() => setSelectedReceiptOrder(order)}
-                      className="text-slate-500 hover:text-slate-800 text-[11px] font-bold flex items-center gap-1"
-                      title="Print slip"
+                      className="text-slate-500 hover:text-slate-800 text-[11px] font-bold flex items-center gap-1 cursor-pointer"
+                      title={t('printSlip')}
                     >
                       <Printer className="w-3 h-3" />
-                      <span>Print Slip</span>
+                      <span>{t('printSlip')}</span>
                     </button>
                   </div>
                 </div>
@@ -242,7 +246,7 @@ export function StoreOrders() {
                     <div className="bg-amber-50 border border-amber-200/80 rounded-xl p-2.5 text-xs text-amber-900 font-medium flex items-start gap-2">
                       <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-bold">Customer Note: </span>
+                        <span className="font-bold">{t('yourNote')}: </span>
                         <span>"{order.note}"</span>
                       </div>
                     </div>
@@ -251,7 +255,7 @@ export function StoreOrders() {
                   {/* Items list */}
                   <div className="space-y-2">
                     <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                      Ordered Products ({order.items?.length || 0})
+                      {t('orderedItems')} ({order.items?.length || 0})
                     </div>
                     
                     <div className="divide-y divide-slate-100 bg-slate-50/70 rounded-xl p-2.5 border border-slate-100">
@@ -283,7 +287,7 @@ export function StoreOrders() {
                       className="flex-1 py-1.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
                     >
                       <Phone className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Call Customer</span>
+                      <span>{t('callCustomer')}</span>
                     </a>
 
                     <a
@@ -293,7 +297,7 @@ export function StoreOrders() {
                       className="flex-1 py-1.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
                     >
                       <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>WhatsApp</span>
+                      <span>{t('whatsappCustomer')}</span>
                     </a>
                   </div>
 
@@ -302,7 +306,7 @@ export function StoreOrders() {
                 {/* Footer: Grand Total & Status Action Buttons */}
                 <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-slate-500">Total Bill Amount</span>
+                    <span className="text-xs font-semibold text-slate-500">{t('grandTotal')}</span>
                     <span className="text-lg font-black text-slate-900">₹{order.totalAmount}</span>
                   </div>
 
@@ -316,13 +320,13 @@ export function StoreOrders() {
                           className="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2.5 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20 cursor-pointer disabled:opacity-50"
                         >
                           <CheckCircle className="w-3.5 h-3.5" />
-                          <span>Accept Order</span>
+                          <span>{t('acceptOrder')}</span>
                         </button>
                         <button
                           onClick={() => { setCancellingOrderId(order.id); setCancelReason(''); }}
                           className="px-3 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-colors cursor-pointer"
                         >
-                          Cancel
+                          {t('cancelOrder')}
                         </button>
                       </>
                     )}
@@ -335,13 +339,13 @@ export function StoreOrders() {
                           className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 shadow-md shadow-blue-600/20 cursor-pointer disabled:opacity-50"
                         >
                           <Package className="w-3.5 h-3.5" />
-                          <span>Start Preparing</span>
+                          <span>{t('startPreparing')}</span>
                         </button>
                         <button
                           onClick={() => { setCancellingOrderId(order.id); setCancelReason(''); }}
                           className="px-3 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-colors cursor-pointer"
                         >
-                          Cancel
+                          {t('cancelOrder')}
                         </button>
                       </>
                     )}
@@ -353,7 +357,7 @@ export function StoreOrders() {
                         className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 cursor-pointer disabled:opacity-50"
                       >
                         <CheckCircle className="w-4 h-4" />
-                        <span>Mark Order READY FOR COLLECTION</span>
+                        <span>{t('markReady')}</span>
                       </button>
                     )}
 
@@ -364,19 +368,19 @@ export function StoreOrders() {
                         className="w-full bg-slate-900 hover:bg-black text-white py-2.5 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 shadow-md shadow-slate-900/20 cursor-pointer disabled:opacity-50"
                       >
                         <CheckCircle className="w-4 h-4 text-emerald-400" />
-                        <span>Customer Collected & Paid</span>
+                        <span>{t('markCollected')}</span>
                       </button>
                     )}
 
                     {order.status === 'COLLECTED' && (
                       <div className="w-full py-2 text-center text-xs font-bold text-slate-500 bg-slate-200/60 rounded-xl">
-                        ✓ Order Completed & Collected
+                        ✓ {lang === 'ta' ? 'ஆர்டர் வெற்றிகரமாக வழங்கப்பட்டது' : 'Order Completed & Collected'}
                       </div>
                     )}
 
                     {order.status === 'CANCELLED' && (
                       <div className="w-full py-2 text-center text-xs font-bold text-rose-600 bg-rose-100/60 rounded-xl">
-                        ✕ Order Cancelled ({order.cancelReason || 'Staff cancelled'})
+                        ✕ {lang === 'ta' ? 'ஆர்டர் ரத்து செய்யப்பட்டது' : 'Order Cancelled'} ({order.cancelReason || 'Staff cancelled'})
                       </div>
                     )}
                   </div>
@@ -395,22 +399,26 @@ export function StoreOrders() {
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4">
             <div className="flex items-center gap-2 text-rose-600">
               <AlertTriangle className="w-5 h-5" />
-              <h4 className="font-extrabold text-base text-slate-900">Cancel Order</h4>
+              <h4 className="font-extrabold text-base text-slate-900">
+                {lang === 'ta' ? 'ஆர்டரை ரத்து செய்' : 'Cancel Order'}
+              </h4>
             </div>
 
             <p className="text-xs text-slate-600">
-              Cancelling this order will immediately restore the product stock levels and notify the customer.
+              {lang === 'ta'
+                ? 'இந்த ஆர்டரை ரத்து செய்தால், பொருட்களின் இருப்பு (stock) தானாகவே மீண்டும் சேர்க்கப்படும்.'
+                : 'Cancelling this order will immediately restore product stock levels and notify the customer.'}
             </p>
 
             <form onSubmit={handleCancelSubmit} className="space-y-3">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Reason for Cancellation
+                  {lang === 'ta' ? 'ரத்து செய்வதற்கான காரணம்' : 'Reason for Cancellation'}
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Out of stock, Customer requested cancellation"
+                  placeholder={lang === 'ta' ? 'எ.கா: இருப்பு இல்லை, வாடிக்கையாளர் கோரிக்கை' : 'e.g. Out of stock, Customer requested cancellation'}
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium focus:outline-hidden focus:border-rose-500"
@@ -421,15 +429,15 @@ export function StoreOrders() {
                 <button
                   type="button"
                   onClick={() => setCancellingOrderId(null)}
-                  className="flex-1 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50"
+                  className="flex-1 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
                 >
-                  Back
+                  {t('back')}
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2 rounded-xl bg-rose-600 text-white text-xs font-black hover:bg-rose-700"
+                  className="flex-1 py-2 rounded-xl bg-rose-600 text-white text-xs font-black hover:bg-rose-700 cursor-pointer"
                 >
-                  Confirm Cancel
+                  {lang === 'ta' ? 'உறுதி செய்' : 'Confirm Cancel'}
                 </button>
               </div>
             </form>

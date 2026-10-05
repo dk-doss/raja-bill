@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, Minus, Check, Package, Sparkles, AlertCircle, ShoppingBag, Store, Clock, ChevronRight, X } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useStore } from '../../context/StoreContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { fetchCategories, fetchProducts } from '../../api';
 
 export function CustomerHome({ onOpenCart, onOpenTracker }) {
   const { addToCart, updateQuantity, getItemQuantity, itemCount, totalAmount } = useCart();
   const { storeInfo } = useStore();
+  const { lang, t } = useLanguage();
 
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -35,11 +37,18 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
     }
   };
 
+  // Helper to get translated category name
+  const getCategoryName = (cat) => {
+    if (!cat) return '';
+    return t(cat.id) || cat.name;
+  };
+
   // Filter products by selected category and search
   const filteredProducts = products.filter(p => {
     const matchesCategory = selectedCategory === 'all' || p.categoryId === selectedCategory;
     const cat = categories.find(c => c.id === p.categoryId);
     const catName = cat ? cat.name.toLowerCase() : '';
+    const catTrans = cat ? (t(cat.id) || '').toLowerCase() : '';
     const q = searchQuery.toLowerCase().trim();
 
     if (!q) return matchesCategory;
@@ -48,6 +57,7 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
       p.name.toLowerCase().includes(q) ||
       (p.brand && p.brand.toLowerCase().includes(q)) ||
       catName.includes(q) ||
+      catTrans.includes(q) ||
       (p.description && p.description.toLowerCase().includes(q));
 
     return matchesCategory && matchesSearch;
@@ -62,32 +72,35 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
           
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold mb-4 tracking-wide border border-amber-200">
             <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            <span>Digital Storefront for {storeInfo.name || 'RAJA STORE'}</span>
+            <span>{t('digitalStorefront')}</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-600">{storeInfo.name || 'RAJA STORE'}</span>
+            {t('welcomeTitle')}{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-600">
+              {lang === 'ta' ? 'ராஜா ஸ்டோர்' : (storeInfo.name || 'RAJA STORE')}
+            </span>
           </h1>
 
           <p className="mt-3 text-base sm:text-xl text-slate-600 font-medium max-w-2xl mx-auto">
-            Shop from your home. Order now and collect from our shop.
+            {t('welcomeSubtitle')}
           </p>
 
           {/* Quick Value Props Banner */}
           <div className="mt-5 inline-flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm font-semibold text-slate-700 bg-white/90 backdrop-blur-xs py-2 px-4 sm:px-6 rounded-2xl shadow-xs border border-orange-100">
             <div className="flex items-center gap-1.5 text-emerald-700">
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span>Fast Packing ({storeInfo.prepEstimate || '15 mins'})</span>
+              <span>{t('fastPacking')}</span>
             </div>
             <span className="text-slate-300 hidden sm:inline">•</span>
             <div className="flex items-center gap-1.5 text-amber-700">
               <Store className="w-4 h-4 text-amber-600" />
-              <span>Counter Collection Point</span>
+              <span>{t('counterPickup')}</span>
             </div>
             <span className="text-slate-300 hidden sm:inline">•</span>
             <div className="flex items-center gap-1.5 text-orange-700">
               <Clock className="w-4 h-4 text-orange-600" />
-              <span>Timings: {storeInfo.pickupTimings}</span>
+              <span>{t('storeTimings')}</span>
             </div>
           </div>
 
@@ -97,7 +110,7 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
               <Search className="w-5 h-5 text-slate-400 ml-4 shrink-0" />
               <input
                 type="text"
-                placeholder="Search products, brands, or categories (e.g. Atta, Rice, Surf, Maggi)..."
+                placeholder={t('searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full py-3.5 px-3 text-slate-800 placeholder-slate-400 focus:outline-hidden text-sm sm:text-base font-medium bg-transparent"
@@ -123,7 +136,7 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-              <span>Categories</span>
+              <span>{t('categories')}</span>
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">
                 {categories.length}
               </span>
@@ -131,9 +144,9 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
             {selectedCategory !== 'all' && (
               <button
                 onClick={() => setSelectedCategory('all')}
-                className="text-xs font-bold text-orange-600 hover:text-orange-700 hover:underline"
+                className="text-xs font-bold text-orange-600 hover:text-orange-700 hover:underline cursor-pointer"
               >
-                Clear Filter
+                {t('clearFilter')}
               </button>
             )}
           </div>
@@ -149,7 +162,7 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
               }`}
             >
               <span>🛒</span>
-              <span>All Products</span>
+              <span>{t('allProducts')}</span>
               <span className={`text-[10px] px-1.5 py-0.5 rounded-md ${
                 selectedCategory === 'all' ? 'bg-orange-700 text-white' : 'bg-slate-100 text-slate-600'
               }`}>
@@ -172,7 +185,7 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
                   }`}
                 >
                   <span>{cat.icon || '📦'}</span>
-                  <span>{cat.name}</span>
+                  <span>{getCategoryName(cat)}</span>
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-md ${
                     isSelected ? 'bg-orange-700 text-white' : 'bg-slate-100 text-slate-600'
                   }`}>
@@ -189,17 +202,17 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
           <div className="flex items-baseline gap-2">
             <h3 className="text-base sm:text-lg font-bold text-slate-900">
               {selectedCategory === 'all'
-                ? 'All Available Products'
-                : categories.find(c => c.id === selectedCategory)?.name || 'Products'}
+                ? t('allProducts')
+                : getCategoryName(categories.find(c => c.id === selectedCategory)) || t('categories')}
             </h3>
             <span className="text-xs text-slate-500 font-semibold">
-              ({filteredProducts.length} items found)
+              ({filteredProducts.length} {t('itemsFound')})
             </span>
           </div>
 
           {searchQuery && (
             <div className="text-xs text-slate-500 font-medium">
-              Searching for "<span className="text-orange-600 font-bold">{searchQuery}</span>"
+              {t('searchingFor')}: "<span className="text-orange-600 font-bold">{searchQuery}</span>"
             </div>
           )}
         </div>
@@ -221,15 +234,15 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
             <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-4">
               <Package className="w-8 h-8" />
             </div>
-            <h4 className="text-lg font-bold text-slate-900 mb-1">No products found</h4>
+            <h4 className="text-lg font-bold text-slate-900 mb-1">{t('noProductsFound')}</h4>
             <p className="text-sm text-slate-500 mb-6">
-              We couldn't find any products matching your search or category selection.
+              {t('noProductsDesc')}
             </p>
             <button
               onClick={() => { setSelectedCategory('all'); setSearchQuery(''); }}
-              className="px-4 py-2 bg-orange-600 text-white rounded-xl text-xs font-bold hover:bg-orange-700"
+              className="px-4 py-2 bg-orange-600 text-white rounded-xl text-xs font-bold hover:bg-orange-700 cursor-pointer"
             >
-              Show All Products
+              {t('showAllProducts')}
             </button>
           </div>
         ) : (
@@ -264,11 +277,11 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
                     {/* Stock Badges */}
                     {isOutOfStock ? (
                       <span className="absolute top-2 left-2 bg-rose-600 text-white text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-xs">
-                        OUT OF STOCK
+                        {t('outOfStock')}
                       </span>
                     ) : isLowStock ? (
                       <span className="absolute top-2 left-2 bg-amber-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-md shadow-xs">
-                        Only {product.stock} left
+                        {t('onlyLeft', { count: product.stock })}
                       </span>
                     ) : null}
 
@@ -301,7 +314,7 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
                           ₹{product.price}
                         </div>
                         <div className="text-[10px] text-slate-400 font-medium">
-                          Incl. taxes
+                          {t('inclTaxes')}
                         </div>
                       </div>
 
@@ -312,7 +325,7 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
                             disabled
                             className="bg-slate-100 text-slate-400 text-xs font-bold px-3 py-2 rounded-xl cursor-not-allowed uppercase"
                           >
-                            OUT OF STOCK
+                            {t('outOfStock')}
                           </button>
                         ) : qtyInCart > 0 ? (
                           <div className="flex items-center gap-1.5 bg-orange-600 text-white rounded-xl p-1 shadow-sm shadow-orange-600/30">
@@ -345,7 +358,7 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
                             className="bg-orange-50 hover:bg-orange-600 text-orange-700 hover:text-white border border-orange-200 hover:border-orange-600 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-150 active:scale-95 flex items-center gap-1 cursor-pointer shadow-2xs"
                           >
                             <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                            <span>ADD</span>
+                            <span>{t('add')}</span>
                           </button>
                         )}
                       </div>
@@ -362,13 +375,13 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
         <div className="mt-16 bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl">
           <div className="text-center max-w-xl mx-auto mb-8">
             <span className="bg-orange-500/20 text-orange-400 text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border border-orange-500/30">
-              Simple 4-Step Pickup Flow
+              {t('howItWorksBadge')}
             </span>
             <h3 className="text-xl sm:text-2xl font-black mt-2">
-              How Ordering at RAJA STORE Works
+              {t('howItWorksTitle')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 mt-1">
-              Save time and avoid waiting in store queues. Order from home, we pack your items, and you collect!
+              {t('howItWorksDesc')}
             </p>
           </div>
 
@@ -377,9 +390,9 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
               <div className="w-9 h-9 rounded-xl bg-orange-500 text-white font-black flex items-center justify-center text-sm mb-3">
                 1
               </div>
-              <h5 className="font-bold text-sm text-white">Select Products</h5>
+              <h5 className="font-bold text-sm text-white">{t('step1Title')}</h5>
               <p className="text-xs text-slate-400 mt-1">
-                Browse groceries, snacks, household essentials and add items to your cart.
+                {t('step1Desc')}
               </p>
             </div>
 
@@ -387,9 +400,9 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
               <div className="w-9 h-9 rounded-xl bg-orange-500 text-white font-black flex items-center justify-center text-sm mb-3">
                 2
               </div>
-              <h5 className="font-bold text-sm text-white">Enter Name & Phone</h5>
+              <h5 className="font-bold text-sm text-white">{t('step2Title')}</h5>
               <p className="text-xs text-slate-400 mt-1">
-                Enter your name and mobile number. No delivery address needed!
+                {t('step2Desc')}
               </p>
             </div>
 
@@ -397,9 +410,9 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
               <div className="w-9 h-9 rounded-xl bg-orange-500 text-white font-black flex items-center justify-center text-sm mb-3">
                 3
               </div>
-              <h5 className="font-bold text-sm text-white">We Pack Your Order</h5>
+              <h5 className="font-bold text-sm text-white">{t('step3Title')}</h5>
               <p className="text-xs text-slate-400 mt-1">
-                Our shop staff receives your order, packs everything, and marks it "READY".
+                {t('step3Desc')}
               </p>
             </div>
 
@@ -407,9 +420,9 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
               <div className="w-9 h-9 rounded-xl bg-emerald-500 text-white font-black flex items-center justify-center text-sm mb-3">
                 4
               </div>
-              <h5 className="font-bold text-sm text-white">Collect from Store</h5>
+              <h5 className="font-bold text-sm text-white">{t('step4Title')}</h5>
               <p className="text-xs text-slate-400 mt-1">
-                Come to RAJA STORE counter, give your Order #, pay and collect your bag.
+                {t('step4Desc')}
               </p>
             </div>
           </div>
@@ -422,13 +435,13 @@ export function CustomerHome({ onOpenCart, onOpenTracker }) {
         <div className="fixed bottom-4 left-4 right-4 z-30 sm:hidden">
           <button
             onClick={onOpenCart}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white px-5 py-3.5 rounded-2xl shadow-xl shadow-emerald-900/30 flex items-center justify-between font-bold"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white px-5 py-3.5 rounded-2xl shadow-xl shadow-emerald-900/30 flex items-center justify-between font-bold cursor-pointer"
           >
             <div className="flex items-center gap-2">
               <span className="bg-emerald-800 px-2 py-0.5 rounded-lg text-xs font-black">
-                {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                {itemCount} {t('itemsFound')}
               </span>
-              <span className="text-sm">View Cart</span>
+              <span className="text-sm">{t('cart')}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="text-base font-extrabold">₹{totalAmount}</span>
