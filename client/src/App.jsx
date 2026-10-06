@@ -8,6 +8,7 @@ import { CartDrawer } from './components/CustomerApp/CartDrawer';
 import { OrderTrackerModal } from './components/CustomerApp/OrderTrackerModal';
 import { StoreLogin } from './components/StoreApp/StoreLogin';
 import { StoreDashboard } from './components/StoreApp/StoreDashboard';
+import { AIAssistantWidget } from './components/AIAssistantWidget';
 
 function MainApp() {
   const { isStaffLoggedIn } = useStore();
@@ -101,6 +102,9 @@ function MainApp() {
           />
         </>
       )}
+
+      {/* 🤖 Floating AI Assistant Widget (Clears any doubts, issues & errors) */}
+      <AIAssistantWidget />
 
     </div>
   );

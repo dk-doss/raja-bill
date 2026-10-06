@@ -5,6 +5,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import multer from 'multer';
 import { db } from './db.js';
+import { askAIAgent } from './aiAgent.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -342,6 +343,17 @@ app.patch('/api/orders/:id/status', (req, res) => {
     res.json({ success: true, data: updated });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+// --- AI ASSISTANT AGENT API ---
+app.post('/api/ai/chat', async (req, res) => {
+  try {
+    const { message, lang, role } = req.body;
+    const result = await askAIAgent({ message, lang, role });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
